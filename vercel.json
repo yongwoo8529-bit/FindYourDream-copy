@@ -1,5 +1,10 @@
 {
   "buildCommand": "./node_modules/.bin/vite build",
   "outputDirectory": "dist",
-  "framework": "vite"
+  "framework": "vite",
+  "functions": {
+    "api/careernet.js": {
+      "regions": ["hnd1"]
+    }
+  }
 }
