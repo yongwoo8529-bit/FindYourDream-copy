@@ -605,7 +605,7 @@
                 <div class="job-card-name">${job.job_nm}</div>
                 <span class="job-card-arrow">↗</span>
             `;
-            card.addEventListener('click', () => openDetail(job.seq, job.job_nm));
+            card.addEventListener('click', () => openDetail(job));
             return card;
         }
 
@@ -693,38 +693,30 @@
 
         const DETAIL_FIELDS = [
             { key: 'work',       label: 'WHAT THEY DO' },
-            { key: 'interest',   label: 'KEY ABILITIES' },
-            { key: 'research',   label: 'EDUCATION' },
+            { key: 'aptit_name', label: 'APTITUDE' },
+            { key: 'social',     label: 'SOCIAL OUTLOOK' },
             { key: 'wage',       label: 'SALARY' },
-            { key: 'rel_job_nm', label: 'HOW TO ENTER' },
             { key: 'wlb',        label: 'WORK-LIFE BALANCE' },
+            { key: 'rel_job_nm', label: 'RELATED JOBS' },
         ];
 
-        async function openDetail(seq, jobNm) {
-            modalJobName.textContent = jobNm;
-            modalBody.innerHTML = '<div class="modal-loading"><div class="spinner"></div>불러오는 중...</div>';
+        function openDetail(job) {
+            modalJobName.textContent = job.job_nm;
             modal.classList.add('active');
 
-            try {
-                const data = await fetchDetail(seq);
-                const job = data ?? {};
+            let html = '';
+            DETAIL_FIELDS.forEach(({ key, label }) => {
+                const val = job[key];
+                if (val) {
+                    html += `
+                        <div class="detail-block">
+                            <div class="detail-label">${label}</div>
+                            <p class="detail-text">${val}</p>
+                        </div>`;
+                }
+            });
 
-                let html = '';
-                DETAIL_FIELDS.forEach(({ key, label }) => {
-                    const val = job[key];
-                    if (val) {
-                        html += `
-                            <div class="detail-block">
-                                <div class="detail-label">${label}</div>
-                                <p class="detail-text">${val}</p>
-                            </div>`;
-                    }
-                });
-
-                modalBody.innerHTML = html || '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:20px 0">상세 정보가 없습니다.</p>';
-            } catch {
-                modalBody.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:20px 0">정보를 불러올 수 없습니다.</p>';
-            }
+            modalBody.innerHTML = html || '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:20px 0">상세 정보가 없습니다.</p>';
         }
 
         function closeModal() { modal.classList.remove('active'); }
