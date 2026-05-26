@@ -1,40 +1,44 @@
 const https = require('https');
+const http = require('http');
+
+function apiCall(url) {
+    return new Promise((resolve) => {
+        const client = url.startsWith('https') ? https : http;
+        const req = client.get(url, (res) => {
+            if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                res.resume();
+                return apiCall(res.headers.location).then(resolve);
+            }
+            let body = '';
+            res.on('data', d => body += d);
+            res.on('end', () => resolve({ status: res.statusCode, body: body.slice(0, 400) }));
+            res.on('error', e => resolve({ status: 'READ_ERR', msg: e.message }));
+        });
+        req.setTimeout(10000, () => { req.destroy(); resolve({ status: 'TIMEOUT' }); });
+        req.on('error', e => resolve({ status: 'CONN_ERR', msg: e.message }));
+    });
+}
 
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
 
-    // 1) 환경변수 확인
-    const apiKey = process.env.VITE_CAREERNET_API_KEY;
+    const rawKey = process.env.VITE_CAREERNET_API_KEY || '';
+    let decodedKey = rawKey;
+    try { decodedKey = decodeURIComponent(rawKey); } catch {}
 
-    // 2) career.go.kr TCP 연결 테스트
-    const reachable = await new Promise((resolve) => {
-        const r = https.get('https://www.career.go.kr', { timeout: 5000 }, (resp) => {
-            resp.resume();
-            resolve(`HTTP ${resp.statusCode}`);
-        });
-        r.on('timeout', () => { r.destroy(); resolve('TIMEOUT'); });
-        r.on('error', (e) => resolve(`ERROR: ${e.message}`));
-    });
+    const base = 'https://www.career.go.kr/cnet/front/openapi/jobs.json';
 
-    // 3) API 엔드포인트 직접 호출 (키 미포함)
-    const apiCheck = await new Promise((resolve) => {
-        const r = https.get(
-            `https://www.career.go.kr/cnet/front/openapi/jobs.json?apiKey=${apiKey || 'NO_KEY'}&pageIndex=1&pageCount=1`,
-            { timeout: 10000 },
-            (resp) => {
-                let body = '';
-                resp.on('data', d => body += d);
-                resp.on('end', () => resolve({ status: resp.statusCode, body: body.slice(0, 300) }));
-            }
-        );
-        r.on('timeout', () => { r.destroy(); resolve({ status: 'TIMEOUT' }); });
-        r.on('error', (e) => resolve({ status: 'ERROR', msg: e.message }));
-    });
+    // 방법 1: raw 키 그대로
+    const test1 = await apiCall(`${base}?apiKey=${rawKey}&pageIndex=1&pageCount=1`);
+    // 방법 2: 디코딩 후 encodeURIComponent
+    const test2 = await apiCall(`${base}?apiKey=${encodeURIComponent(decodedKey)}&pageIndex=1&pageCount=1`);
 
     res.status(200).json({
         nodeVersion: process.version,
-        hasApiKey: !!apiKey,
-        careerGoKrReachable: reachable,
-        apiTest: apiCheck,
+        hasApiKey: !!rawKey,
+        keyPrefix: rawKey.slice(0, 8) + '...',       // 키 앞 8자 확인용
+        keyContainsPercent: rawKey.includes('%'),      // 이미 URL인코딩 됐는지
+        test_raw: test1,
+        test_decoded_then_encoded: test2,
     });
 };
