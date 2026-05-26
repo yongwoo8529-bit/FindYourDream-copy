@@ -216,19 +216,31 @@
         }
 
         .job-card-cat {
-            font-size: 25px;
+            font-size: 11px;
             color: rgba(64, 128, 255, 0.8);
             font-family: 'Orbitron', sans-serif;
             letter-spacing: 1px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .job-card-name {
-            font-size: 30px;
+            font-size: 20px;
             font-weight: 700;
             color: #fff;
             line-height: 1.4;
+            margin-bottom: 10px;
             padding-right: 28px;
+        }
+
+        .job-card-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.65;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: keep-all;
         }
 
         .job-card-arrow {
@@ -603,6 +615,7 @@
             card.innerHTML = `
                 <div class="job-card-cat">${job.top_nm || 'CAREER'}</div>
                 <div class="job-card-name">${job.job_nm}</div>
+                ${job.work ? `<p class="job-card-desc">${job.work}</p>` : ''}
                 <span class="job-card-arrow">↗</span>
             `;
             card.addEventListener('click', () => openDetail(job));
