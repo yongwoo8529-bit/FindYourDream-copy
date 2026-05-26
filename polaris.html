@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9406423137638957"
+     crossorigin="anonymous"></script>
+    <title>POLARIS - 당신의 내면의 길을 찾아서</title>
+    <meta name="description" content="청소년들의 진짜 꿈과 가치를 찾기 위한 탐험, 북극성(Polaris) 프로젝트">
+    <link rel="stylesheet" href="src/style.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DDVCLM11CG"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-DDVCLM11CG');
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at center, #1a1a2e 0%, #050505 100%);
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        #stars-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Space (Subtle Stars) -->
+    <div class="aurora-bg">
+        <div class="nebula-point nebula-1" id="nebula-1"></div>
+        <div class="nebula-point nebula-2" id="nebula-2"></div>
+        <div class="nebula-point nebula-3" id="nebula-3"></div>
+    </div>
+    <canvas id="stars-bg"></canvas>
+
+    <div class="app-container">
+        <header class="nav" style="position: relative; z-index: 1000; pointer-events: all;">
+            <div class="logo" onclick="location.href='index.html'" style="cursor: pointer; pointer-events: all;">POLARIS</div>
+            <a href="index.html" style="color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.9rem; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; pointer-events: all;">BACK TO STATION</a>
+        </header>
+
+        <!-- Section 1: Landing -->
+        <section id="landing" class="section active">
+            <h1>당신만의 북극성을 찾으세요</h1>
+            <p>
+                공부라는 정해진 틀에서 벗어나, <br>
+                당신이 진정으로 무엇을 원하고 잘하는지 <br>
+                은하계의 별들을 통해 발견해 보세요.
+            </p>
+            <button class="btn-start" onclick="startSurvey()">탐험 시작하기</button>
+        </section>
+
+        <!-- Section 2: Survey -->
+        <section id="survey" class="section">
+            <div class="survey-card">
+                <div class="survey-header">
+                    <span id="part-label" class="question-part-label">PART 1: 호기심과 정보</span>
+                    <div class="survey-progress">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                </div>
+                <div id="question-container">
+                    <h2 id="question-text">질문을 불러오는 중...</h2>
+                    <div class="rating-options">
+                        <button class="rating-btn" data-value="1">
+                            <strong>1</strong>
+                            <span>전혀 아니다</span>
+                        </button>
+                        <button class="rating-btn" data-value="2">
+                            <strong>2</strong>
+                            <span>아니다</span>
+                        </button>
+                        <button class="rating-btn" data-value="3">
+                            <strong>3</strong>
+                            <span>보통이다</span>
+                        </button>
+                        <button class="rating-btn" data-value="4">
+                            <strong>4</strong>
+                            <span>그렇다</span>
+                        </button>
+                        <button class="rating-btn" data-value="5">
+                            <strong>5</strong>
+                            <span>매우 그렇다</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="survey-footer">
+                    <button id="prev-btn" class="btn-prev" onclick="prevQuestion()" style="visibility: hidden;">이전으로</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Result (Canvas) -->
+        <section id="result" class="section">
+            <div id="canvas-container"></div>
+            <div id="result-ui">
+                <h1 id="result-title"></h1>
+                <p id="result-desc"></p>
+                
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button id="restart-btn" class="btn-start" style="margin-top: 1.5rem; pointer-events: all; display: none;" onclick="location.href='index.html'">메인으로 돌아가기</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Galaxy Detail Modal -->
+        <div id="galaxy-modal" class="modal-overlay">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal()">×</button>
+                <div class="modal-body">
+                    <h2 id="modal-galaxy-name">은하 이름</h2>
+                    <p id="modal-tagline" style="font-style: italic; opacity: 0.8; margin-top: -1.5rem; margin-bottom: 2rem; font-size: 0.9rem; color: var(--accent-blue);">"태그라인"</p>
+                    
+                    <div class="modal-info-section">
+                        <h3>✨ 당신의 핵심 재능</h3>
+                        <p id="modal-core">핵심 설명...</p>
+                    </div>
+                    
+                    <div class="modal-info-section">
+                        <h3>🌟 당신이 빛나는 순간</h3>
+                        <p id="modal-moment">순간 설명...</p>
+                    </div>
+
+                    <div class="modal-info-section">
+                        <h3>🚀 추천 직업 (20개)</h3>
+                        <p id="modal-jobs" style="line-height: 1.8; word-break: keep-all; color: #fff;"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p id="modal-disclaimer" style="font-size: 0.8rem; opacity: 0.6; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Creation Overlay -->
+        <div id="creation-overlay">
+            <h2 id="creation-text">당신의 내면의 북극성이 만들어집니다...</h2>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script type="module" src="src/app.js"></script>
+    <script>
+        // 자이로스코프 모바일 효과
+        function initTiltEffect() {
+            window.addEventListener('deviceorientation', (event) => {
+                const beta = event.beta;
+                const gamma = event.gamma;
+                const x = (gamma / 20) * 10;
+                const y = (beta / 20) * 10;
+                
+                gsap.to('#nebula-1', { x: x * 2, y: y * 2, duration: 2, ease: "power2.out" });
+                gsap.to('#nebula-2', { x: -x * 1.5, y: -y * 1.5, duration: 2, ease: "power2.out" });
+                gsap.to('#nebula-3', { x: x * 0.8, y: -y * 0.8, duration: 2, ease: "power2.out" });
+                gsap.to('#stars-bg', { x: x * 0.5, y: y * 0.5, duration: 1, ease: "power2.out" });
+            });
+        }
+        
+        // PC 테스트를 위한 마우스 백업
+        window.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 30;
+            const y = (e.clientY / window.innerHeight - 0.5) * 30;
+            gsap.to('#nebula-1', { x: x * 2, y: y * 2, duration: 4, ease: "slow(0.7,0.7,false)" });
+            gsap.to('#nebula-2', { x: -x * 1.5, y: -y * 1.5, duration: 4, ease: "slow(0.7,0.7,false)" });
+            gsap.to('#nebula-3', { x: x, y: -y, duration: 4, ease: "slow(0.7,0.7,false)" });
+            gsap.to('#stars-bg', { x: x * 0.3, y: y * 0.3, duration: 2 });
+        });
+        
+        window.addEventListener('load', initTiltEffect);
+    </script>
+</body>
+</html>

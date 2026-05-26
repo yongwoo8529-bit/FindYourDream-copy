@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9406423137638957"
+     crossorigin="anonymous"></script>
+    <title>POLARIS - 북극성이란?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Noto+Sans+KR:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow-x: hidden;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* [Navigation] */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 800px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            background: rgba(4, 10, 24, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        /* [Footer] - Reusing index.html style */
+        .main-footer {
+            width: 100%;
+            max-width: 800px;
+            padding: 60px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 10;
+            margin-top: 80px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #4080ff;
+            text-transform: uppercase;
+        }
+
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 10px; }
+        .footer-col a { color: rgba(255, 255, 255, 0.5); text-decoration: none; font-size: 13px; }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        #stars-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+        }
+        .about-container {
+            max-width: 800px;
+            margin: 100px auto;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            color: #fff;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.05);
+            animation: fadeIn 1.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            letter-spacing: 5px;
+            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.4) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-content {
+            line-height: 2;
+            font-size: 1.15rem;
+            color: rgba(255, 255, 255, 0.9);
+            word-break: keep-all;
+            text-align: justify;
+        }
+        .highlight {
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .back-btn {
+            display: block;
+            margin: 4rem auto 0;
+            padding: 1rem 3rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        }
+        .back-btn:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 20px #fff;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="index.html" class="nav-logo">POLARIS</a>
+        <button id="nav-toggle" class="nav-btn">NAVIGATE</button>
+        <div id="nav-menu" class="nav-overlay">
+            <div class="nav-menu-content">
+                <a href="about.html" class="menu-item">브랜드 스토리</a>
+                <a href="results-guide.html" class="menu-item">은하계 가이드</a>
+                <a href="blog.html" class="menu-item">블로그</a>
+                <a href="polaris.html" class="menu-item">나만의 북극성 찾기</a>
+            </div>
+        </div>
+    </nav>
+    <canvas id="stars-bg"></canvas>
+    
+    <div class="about-container">
+        <h1>ABOUT POLARIS</h1>
+        <div class="text-content">
+            제가 이 사이트의 이름을 <span class="highlight">'북극성(Polaris)'</span>으로 만든 이유는 복합적인 게임 및 기능들을 모아 놓고 <span class="highlight">청소년들이 북극성처럼 다른 별에 영향을 받지 않고 혼자 빛나도록</span> 돕기 위해서입니다.
+            <br><br>
+            북극성은 밤하늘에서 항상 제자리를 지키며 항해사들의 길잡이가 되어줍니다. 이처럼 우리 청소년들도 다른 사람의 시선이나 사회의 고정관념에 휘둘리지 않고, <span class="highlight">여러분만의 고유한 빛</span>을 발하길 바랍니다.
+            <br><br>
+            이 사이트는 학교 공부라는 틀에 갇히기 전, 여러분이 <span class="highlight">진정으로 무엇을 하고 싶은지 찾고</span> 그 길을 흔들림 없이 개척할 수 있도록 도와주는 플랫폼입니다. 여러분의 여정이 목적지를 잃지 않도록, POLARIS가 함께하겠습니다.
+            
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 1rem; color: rgba(255,255,255,0.6); font-style: italic;">
+                The reason I named this site <span style="color: rgba(255,255,255,0.8);">'Polaris'</span> is to bring together various games and features to help teenagers shine on their own, like the North Star — which remains constant without being influenced by other stars.
+                <br><br>
+                Just as the Polaris always keeps its place in the night sky as a guide for navigators, I hope our young people will also shine with their own unique light, unswayed by the gaze of others or social stereotypes.
+                <br><br>
+                This site is a platform designed to help you discover what you truly want to do before getting trapped in the framework of school studies, so you can carve out your own path without hesitation. POLARIS will be with you to ensure your journey never loses its destination.
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Sitemap</h4>
+                <ul>
+                    <li><a href="index.html">Main Station</a></li>
+                    <li><a href="about.html">About Polaris</a></li>
+                    <li><a href="results-guide.html">Result Guide</a></li>
+                    <li><a href="blog.html">Blog Inside</a></li>
+                    <li><a href="polaris.html">나만의 북극성 찾기</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="privacy.html">개인정보 처리방침</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 POLARIS PROJECT.
+        </div>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('stars-bg');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const resizeCanvas = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const drawStars = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < 200; i++) {
+                    const size = Math.random() * 1.5;
+                    const opacity = Math.random();
+                    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            };
+            drawStars();
+        }
+    </script>
+    <script>
+        const nt = document.getElementById('nav-toggle');
+        const nm = document.getElementById('nav-menu');
+        nt.addEventListener('click', (e) => { e.stopPropagation(); nm.classList.toggle('active'); });
+        document.addEventListener('click', (e) => { if (!nm.contains(e.target)) nm.classList.remove('active'); });
+    </script>
+</body>
+</html>

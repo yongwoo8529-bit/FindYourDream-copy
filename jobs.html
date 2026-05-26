@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLARIS - 직업 탐색</title>
+    <meta name="description" content="커리어넷 데이터 기반 직업 탐색 — 나의 은하계 유형에 맞는 직업을 찾아보세요.">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow-x: hidden;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 800px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            background: rgba(4, 10, 24, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-top: 120px;
+            text-align: center;
+            padding: 0 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .header-hint {
+            font-size: 12px;
+            color: #4080ff;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .page-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.4) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-desc {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            line-height: 1.8;
+            word-break: keep-all;
+        }
+
+        /* Search + Filter */
+        .search-section {
+            width: 100%;
+            max-width: 900px;
+            padding: 0 20px;
+            margin: 36px auto 0;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            padding: 13px 22px;
+            color: #fff;
+            font-size: 14px;
+            font-family: 'Noto Sans KR', sans-serif;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-input::placeholder { color: rgba(255,255,255,0.25); }
+
+        .search-input:focus {
+            border-color: #4080ff;
+            box-shadow: 0 0 0 3px rgba(64, 128, 255, 0.15);
+        }
+
+        .search-btn {
+            background: #4080ff;
+            border: none;
+            border-radius: 50px;
+            padding: 13px 26px;
+            color: #fff;
+            font-size: 12px;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            background: #5590ff;
+            box-shadow: 0 0 20px rgba(64, 128, 255, 0.4);
+        }
+
+        .galaxy-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding-bottom: 4px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 8px 18px;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--fc, #4080ff);
+            color: var(--fc, #4080ff);
+            background: rgba(64, 128, 255, 0.08);
+        }
+
+        .filter-btn.active {
+            border-color: var(--fc, #4080ff);
+            color: var(--fc, #4080ff);
+            background: rgba(64, 128, 255, 0.12);
+            box-shadow: 0 0 14px var(--fg, rgba(64,128,255,0.2));
+        }
+
+        /* Result info */
+        .result-info {
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            margin: 20px 0 16px;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        /* Jobs Grid */
+        .jobs-container {
+            width: 100%;
+            max-width: 900px;
+            padding: 0 20px;
+            margin-bottom: 40px;
+        }
+
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 14px;
+        }
+
+        .job-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 18px;
+            padding: 22px 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.4s ease-out both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(64, 128, 255, 0.35);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.4), 0 0 18px rgba(64,128,255,0.08);
+        }
+
+        .job-card-cat {
+            font-size: 10px;
+            color: rgba(64, 128, 255, 0.8);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .job-card-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.4;
+            padding-right: 28px;
+        }
+
+        .job-card-arrow {
+            position: absolute;
+            bottom: 18px;
+            right: 18px;
+            font-size: 16px;
+            opacity: 0.25;
+            transition: opacity 0.25s, transform 0.25s;
+        }
+
+        .job-card:hover .job-card-arrow {
+            opacity: 0.7;
+            transform: translate(2px, -2px);
+        }
+
+        /* Status box */
+        .status-box {
+            text-align: center;
+            padding: 70px 20px;
+            color: rgba(255,255,255,0.3);
+            width: 100%;
+            display: none;
+        }
+
+        .status-box.visible { display: block; }
+
+        .status-icon { font-size: 2.8rem; margin-bottom: 14px; }
+
+        .status-box p { font-size: 14px; line-height: 1.7; }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(255,255,255,0.08);
+            border-top-color: #4080ff;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            margin: 0 auto 14px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Load more */
+        .load-more-wrap {
+            text-align: center;
+            padding: 24px 0 60px;
+            display: none;
+        }
+
+        .load-more-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 50px;
+            padding: 12px 40px;
+            color: rgba(255,255,255,0.55);
+            font-size: 13px;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .load-more-btn:hover {
+            border-color: #4080ff;
+            color: #4080ff;
+            box-shadow: 0 0 16px rgba(64,128,255,0.2);
+        }
+
+        /* Detail Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.87);
+            backdrop-filter: blur(14px);
+            z-index: 500;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: rgba(6, 10, 24, 0.98);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 26px;
+            width: 100%;
+            max-width: 580px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 60px rgba(0,0,0,0.8), 0 0 28px rgba(64,128,255,0.12);
+            overflow: hidden;
+            animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            padding: 26px 26px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-shrink: 0;
+        }
+
+        .modal-job-name {
+            font-size: 1.45rem;
+            font-family: 'Orbitron', sans-serif;
+            color: #fff;
+            letter-spacing: 1px;
+            line-height: 1.3;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.4);
+            font-size: 22px;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+            flex-shrink: 0;
+            margin-left: 10px;
+            margin-top: 2px;
+        }
+
+        .modal-close:hover { color: #fff; }
+
+        .modal-body {
+            overflow-y: auto;
+            padding: 22px 26px 26px;
+        }
+
+        .modal-body::-webkit-scrollbar { width: 4px; }
+        .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.12);
+            border-radius: 2px;
+        }
+
+        .detail-block { margin-bottom: 22px; }
+
+        .detail-label {
+            font-size: 10px;
+            font-family: 'Orbitron', sans-serif;
+            color: #4080ff;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .detail-text {
+            font-size: 14px;
+            line-height: 1.85;
+            color: rgba(255,255,255,0.78);
+            word-break: keep-all;
+        }
+
+        .modal-loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.35);
+        }
+
+        /* Stars bg */
+        #stars-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        /* Footer */
+        .main-footer {
+            width: 100%;
+            max-width: 800px;
+            padding: 40px 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.2);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 600px) {
+            .page-title { font-size: 1.8rem; letter-spacing: 3px; }
+            .jobs-grid { grid-template-columns: 1fr; }
+            .filter-btn { font-size: 12px; padding: 7px 13px; }
+            .modal-job-name { font-size: 1.15rem; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stars-bg"></canvas>
+
+    <nav class="top-nav">
+        <a href="index.html" class="nav-logo">POLARIS</a>
+        <button id="nav-toggle" class="nav-btn">NAVIGATE</button>
+        <div id="nav-menu" class="nav-overlay">
+            <div class="nav-menu-content">
+                <a href="about.html" class="menu-item">브랜드 스토리</a>
+                <a href="results-guide.html" class="menu-item">은하계 가이드</a>
+                <a href="jobs.html" class="menu-item">직업 탐색</a>
+                <a href="blog.html" class="menu-item">블로그</a>
+                <a href="polaris.html" class="menu-item">나만의 북극성 찾기</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <span class="header-hint">POWERED BY CAREERNET</span>
+        <h1 class="page-title">JOB EXPLORER</h1>
+        <p class="page-desc">
+            나의 은하계 유형에 맞는 직업을 탐색하거나<br>
+            키워드로 직접 검색해보세요.
+        </p>
+    </header>
+
+    <div class="search-section">
+        <div class="search-bar">
+            <input
+                type="text"
+                class="search-input"
+                id="search-input"
+                placeholder="직업명 검색 (예: 디자이너, 의사, 개발자...)"
+            />
+            <button class="search-btn" id="search-btn">SEARCH</button>
+        </div>
+        <div class="galaxy-filters">
+            <button class="filter-btn active"
+                style="--fc:#4080ff; --fg:rgba(64,128,255,0.2);"
+                data-keyword="">전체</button>
+            <button class="filter-btn"
+                style="--fc:#a55eea; --fg:rgba(165,94,234,0.2);"
+                data-keyword="연구">🟪 탐구</button>
+            <button class="filter-btn"
+                style="--fc:#45aaf2; --fg:rgba(69,170,242,0.2);"
+                data-keyword="설계">🟦 질서</button>
+            <button class="filter-btn"
+                style="--fc:#fd9644; --fg:rgba(253,150,68,0.2);"
+                data-keyword="상담">🟧 온기</button>
+            <button class="filter-btn"
+                style="--fc:#fed330; --fg:rgba(254,211,48,0.2);"
+                data-keyword="디자인">🟨 울림</button>
+            <button class="filter-btn"
+                style="--fc:#26de81; --fg:rgba(38,222,129,0.2);"
+                data-keyword="관리">🟩 울타리</button>
+        </div>
+    </div>
+
+    <div class="jobs-container">
+        <div id="result-info" class="result-info"></div>
+        <div id="jobs-grid" class="jobs-grid"></div>
+        <div id="status-box" class="status-box visible">
+            <div class="spinner"></div>
+            <p>직업 정보를 불러오는 중...</p>
+        </div>
+        <div id="load-more-wrap" class="load-more-wrap">
+            <button class="load-more-btn" id="load-more-btn">더 보기</button>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modal-job-name" class="modal-job-name"></span>
+                <button class="modal-close" id="modal-close">×</button>
+            </div>
+            <div id="modal-body" class="modal-body">
+                <div class="modal-loading"><div class="spinner"></div>불러오는 중...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            &copy; 2024 POLARIS PROJECT<br>
+            직업 정보 제공: <a href="https://www.career.go.kr" target="_blank" style="color:rgba(255,255,255,0.35); text-decoration:none;">한국직업정보시스템 (커리어넷)</a>
+        </div>
+    </footer>
+
+    <script>
+        /* ── Stars background ── */
+        (() => {
+            const c = document.getElementById('stars-bg');
+            const ctx = c.getContext('2d');
+            const stars = [];
+            const resize = () => { c.width = innerWidth; c.height = innerHeight; };
+            window.addEventListener('resize', resize);
+            resize();
+            for (let i = 0; i < 300; i++) {
+                stars.push({
+                    x: Math.random() * c.width,
+                    y: Math.random() * c.height,
+                    r: 0.1 + Math.random() * 1.4,
+                    o: Math.random(),
+                    d: 0.005 + Math.random() * 0.008
+                });
+            }
+            (function animate() {
+                ctx.clearRect(0, 0, c.width, c.height);
+                stars.forEach(s => {
+                    s.o += s.d;
+                    if (s.o > 1 || s.o < 0.1) s.d *= -1;
+                    ctx.globalAlpha = Math.max(0, s.o);
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            })();
+        })();
+
+        /* ── Nav toggle ── */
+        (() => {
+            const btn = document.getElementById('nav-toggle');
+            const menu = document.getElementById('nav-menu');
+            btn.addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('active'); });
+            document.addEventListener('click', e => { if (!menu.contains(e.target)) menu.classList.remove('active'); });
+            menu.querySelectorAll('.menu-item').forEach(a => a.addEventListener('click', () => menu.classList.remove('active')));
+        })();
+
+        /* ── Job Explorer ── */
+        const PAGE_SIZE = 20;
+        let currentKeyword = '';
+        let currentPage = 1;
+        let totalCount = 0;
+        let isLoading = false;
+
+        const grid = document.getElementById('jobs-grid');
+        const statusBox = document.getElementById('status-box');
+        const resultInfo = document.getElementById('result-info');
+        const loadMoreWrap = document.getElementById('load-more-wrap');
+
+        function showStatus(html) {
+            statusBox.innerHTML = html;
+            statusBox.classList.add('visible');
+        }
+
+        function hideStatus() {
+            statusBox.classList.remove('visible');
+        }
+
+        async function fetchJobs(keyword, page) {
+            const params = new URLSearchParams({ pageIndex: page, pageCount: PAGE_SIZE });
+            if (keyword) params.append('keyword', keyword);
+            const res = await fetch(`/api/careernet?${params}`);
+            if (!res.ok) throw new Error('API 오류');
+            return res.json();
+        }
+
+        async function fetchDetail(seq) {
+            const res = await fetch(`/api/careernet?seq=${encodeURIComponent(seq)}`);
+            if (!res.ok) throw new Error('API 오류');
+            return res.json();
+        }
+
+        function makeCard(job, delay) {
+            const card = document.createElement('div');
+            card.className = 'job-card';
+            card.style.animationDelay = `${delay * 40}ms`;
+            card.innerHTML = `
+                <div class="job-card-cat">${job.jobClCdNm || 'CAREER'}</div>
+                <div class="job-card-name">${job.jobNm}</div>
+                <span class="job-card-arrow">↗</span>
+            `;
+            card.addEventListener('click', () => openDetail(job.seq, job.jobNm));
+            return card;
+        }
+
+        async function loadJobs(keyword, page, append = false) {
+            if (isLoading) return;
+            isLoading = true;
+
+            if (!append) {
+                grid.innerHTML = '';
+                loadMoreWrap.style.display = 'none';
+                resultInfo.textContent = '';
+                showStatus('<div class="spinner"></div><p>직업 정보를 불러오는 중...</p>');
+            } else {
+                document.getElementById('load-more-btn').textContent = '불러오는 중...';
+                document.getElementById('load-more-btn').disabled = true;
+            }
+
+            try {
+                const data = await fetchJobs(keyword, page);
+                const jobs = data?.jobs?.job ?? [];
+                totalCount = parseInt(data?.jobs?.totalCount ?? 0, 10);
+
+                hideStatus();
+
+                if (jobs.length === 0 && !append) {
+                    showStatus(`<div class="status-icon">🔭</div><p>검색 결과가 없습니다.<br>다른 키워드로 찾아보세요.</p>`);
+                    isLoading = false;
+                    return;
+                }
+
+                jobs.forEach((job, i) => grid.appendChild(makeCard(job, append ? i : i)));
+
+                resultInfo.textContent = totalCount > 0 ? `총 ${totalCount.toLocaleString()}개의 직업` : '';
+
+                const loaded = page * PAGE_SIZE;
+                if (loaded < totalCount) {
+                    loadMoreWrap.style.display = 'block';
+                    document.getElementById('load-more-btn').textContent = '더 보기';
+                    document.getElementById('load-more-btn').disabled = false;
+                } else {
+                    loadMoreWrap.style.display = 'none';
+                }
+            } catch {
+                if (!append) {
+                    showStatus(`<div class="status-icon">⚠️</div><p>데이터를 불러오지 못했습니다.<br>잠시 후 다시 시도해주세요.</p>`);
+                }
+            }
+
+            isLoading = false;
+        }
+
+        function doSearch() {
+            const kw = document.getElementById('search-input').value.trim();
+            currentKeyword = kw;
+            currentPage = 1;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.filter-btn[data-keyword=""]').classList.add('active');
+            loadJobs(kw, 1, false);
+        }
+
+        /* Filter buttons */
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentKeyword = btn.dataset.keyword;
+                currentPage = 1;
+                document.getElementById('search-input').value = '';
+                loadJobs(currentKeyword, 1, false);
+            });
+        });
+
+        document.getElementById('search-btn').addEventListener('click', doSearch);
+        document.getElementById('search-input').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+        document.getElementById('load-more-btn').addEventListener('click', () => {
+            currentPage++;
+            loadJobs(currentKeyword, currentPage, true);
+        });
+
+        /* ── Detail Modal ── */
+        const modal = document.getElementById('detail-modal');
+        const modalBody = document.getElementById('modal-body');
+        const modalJobName = document.getElementById('modal-job-name');
+
+        const DETAIL_FIELDS = [
+            { key: 'work',               label: 'WHAT THEY DO' },
+            { key: 'ability',            label: 'KEY ABILITIES' },
+            { key: 'educationTuition',   label: 'EDUCATION' },
+            { key: 'salaryRange',        label: 'SALARY' },
+            { key: 'enterPath',          label: 'HOW TO ENTER' },
+            { key: 'employmentPresent',  label: 'EMPLOYMENT' },
+        ];
+
+        async function openDetail(seq, jobNm) {
+            modalJobName.textContent = jobNm;
+            modalBody.innerHTML = '<div class="modal-loading"><div class="spinner"></div>불러오는 중...</div>';
+            modal.classList.add('active');
+
+            try {
+                const data = await fetchDetail(seq);
+                const job = data?.job ?? {};
+
+                let html = '';
+                DETAIL_FIELDS.forEach(({ key, label }) => {
+                    const val = job[key];
+                    if (val) {
+                        html += `
+                            <div class="detail-block">
+                                <div class="detail-label">${label}</div>
+                                <p class="detail-text">${val}</p>
+                            </div>`;
+                    }
+                });
+
+                modalBody.innerHTML = html || '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:20px 0">상세 정보가 없습니다.</p>';
+            } catch {
+                modalBody.innerHTML = '<p style="color:rgba(255,255,255,0.3);text-align:center;padding:20px 0">정보를 불러올 수 없습니다.</p>';
+            }
+        }
+
+        function closeModal() { modal.classList.remove('active'); }
+
+        document.getElementById('modal-close').addEventListener('click', closeModal);
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        /* ── Initial load ── */
+        loadJobs('', 1, false);
+    </script>
+</body>
+</html>

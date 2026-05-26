@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>나만의 북극성 만들기 - POLARIS</title>
+    <style>
+        :root {
+            --bg-color: #0d0420;
+            --accent-purple: #9060ff;
+            --text-white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: system-ui, -apple-system, sans-serif;
+            width: 100vw;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overscroll-behavior: none;
+        }
+
+        .hero-section {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background: url('bg-matrix.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0 20px 60px;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, rgba(13, 4, 32, 0.9) 100%);
+            z-index: 1;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: env(safe-area-inset-top, 40px);
+            left: 20px;
+            z-index: 10;
+            padding: 10px 16px;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 30px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 5;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .content-area {
+            background-color: var(--bg-color);
+            padding: 40px 20px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .glass-card {
+            width: 100%;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(144, 96, 255, 0.15);
+            border-radius: 20px;
+        }
+
+        .card-label {
+            font-size: 11px;
+            color: var(--accent-purple);
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .card-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+        }
+    </style>
+</head>
+<body>
+    <header class="hero-section">
+        <a href="index.html" class="back-btn">← POLARIS</a>
+        <div class="hero-content">
+            <h1 class="section-title">나만의 북극성 만들기</h1>
+        </div>
+    </header>
+
+    <main class="content-area">
+        <div class="glass-card">
+            <div class="card-label">Your Own Galaxy</div>
+            <p class="card-text">
+                당신의 꿈은 우주에서 유일한 별과 같습니다. 이곳에서 당신만의 꿈을 입력하고 시각화하여 당신만의 우주 매트릭스를 만들어보세요.
+            </p>
+        </div>
+        <div class="glass-card">
+            <div class="card-label">Cosmic Energy</div>
+            <p class="card-text">
+                당신이 선택한 꿈의 에너지는 보라빛 성운이 되어 당신의 길을 비출 것입니다. 
+            </p>
+        </div>
+    </main>
+</body>
+</html>

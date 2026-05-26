@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>보드: 당신의 이야기 - POLARIS</title>
+    <style>
+        :root {
+            --bg-color: #001a18;
+            --accent-teal: #20c8a0;
+            --text-white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: system-ui, -apple-system, sans-serif;
+            width: 100vw;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* [Navigation] */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 800px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            background: rgba(0, 26, 24, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-logo {
+            font-weight: 900;
+            font-size: 20px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        /* Footer */
+        .main-footer {
+            width: 100%;
+            max-width: 800px;
+            padding: 60px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 10;
+        }
+        .footer-bottom {
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-section {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            background: url('bg-signals.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0 20px 60px;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, rgba(0, 26, 24, 0.9) 100%);
+            z-index: 1;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: env(safe-area-inset-top, 40px);
+            left: 20px;
+            z-index: 10;
+            padding: 10px 16px;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 30px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 5;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        .content-area {
+            background-color: var(--bg-color);
+            padding: 40px 20px 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .glass-card {
+            width: 100%;
+            padding: 24px;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(32, 200, 160, 0.15);
+            border-radius: 20px;
+        }
+
+        .card-label {
+            font-size: 11px;
+            color: var(--accent-teal);
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .card-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="index.html" class="nav-logo">POLARIS</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="board.html">Community</a>
+            <a href="privacy.html">Privacy</a>
+        </div>
+    </nav>
+    <header class="hero-section">
+        <div class="hero-content">
+            <h1 class="section-title">보드: 당신의 이야기</h1>
+        </div>
+    </header>
+
+    <main class="content-area" style="max-width: 800px; width: 100%;">
+        <div class="glass-card">
+            <div class="card-label">Cosmic Signals</div>
+            <p class="card-text">
+                우주를 떠도는 무수히 많은 전파들처럼, 이곳에서는 당신과 같은 꿈을 가진 사람들의 진솔한 이야기를 나눕니다. 
+                청소년들이 마주하는 고민, 미래에 대한 불안, 그리고 가슴 깊은 곳에서 태동하는 희망의 메시지들을 자유롭게 기록해 보세요.
+            </p>
+        </div>
+        <div class="glass-card">
+            <div class="card-label">Aurora Reflection</div>
+            <p class="card-text">
+                에메랄드빛 오로라가 하늘을 수놓듯, 당신의 꿈도 이 게시판에서 영롱하게 빛나갈 것입니다. 
+                누군가의 따뜻한 한마디가 은하수 너머의 또 다른 친구에게는 아주 큰 힘이 될 수 있습니다. 
+                차가운 현실 속에서도 여러분의 꿈만은 따뜻하게 보호받길 응원합니다.
+            </p>
+        </div>
+        
+        <!-- 게시판으로 이동 유도 -->
+        <a href="board.html" style="display: block; text-align: center; padding: 20px; background: var(--accent-teal); color: #000; border-radius: 12px; font-weight: 700; text-decoration: none; margin-top: 20px;">
+            커뮤니티 보드 입장하기
+        </a>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-bottom">
+            &copy; 2024 POLARIS PROJECT. <a href="privacy.html" style="color: inherit;">개인정보 처리방침</a>
+        </div>
+    </footer>
+</body>
+</html>

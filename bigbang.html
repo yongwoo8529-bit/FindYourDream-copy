@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9406423137638957"
+        crossorigin="anonymous"></script>
+    <title>POLARIS - 빅뱅 진화 시뮬레이션</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Noto+Sans+KR:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #fff;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            touch-action: none;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+            padding: 20px;
+        }
+
+        /* 상단 설명 레이블 */
+        .info-label {
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity 0.5s;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            align-self: center;
+            max-width: 85%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .info-label.visible {
+            opacity: 1;
+        }
+
+        /* pov: 특성화고생이 만든 사이트 */
+        .controls {
+            margin-top: auto;
+            margin-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .enhance-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 1.2rem 5rem;
+            font-size: 1.4rem;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 18px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+            font-family: 'Noto Sans KR', sans-serif;
+            letter-spacing: 2px;
+        }
+
+        .enhance-btn:hover {
+            background: #fff;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 40px #fff;
+        }
+
+        .enhance-btn:active {
+            transform: scale(0.95);
+        }
+
+        .enhance-btn:disabled {
+            opacity: 0.2;
+            cursor: wait;
+            filter: grayscale(1);
+        }
+
+        .probability-text {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 1px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* 뒤로가기 */
+        .back-btn {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ccc;
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            pointer-events: auto;
+            font-family: inherit;
+            font-size: 0.8rem;
+            transition: 0.3s;
+            z-index: 200;
+        }
+
+        .back-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 결과 오버레이 */
+        #msg-overlay {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: 900;
+            pointer-events: none;
+            z-index: 200;
+            text-shadow: 0 0 30px #fff;
+            opacity: 0;
+            font-family: 'Orbitron', sans-serif;
+            width: 100%;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            #msg-overlay {
+                font-size: 2rem;
+            }
+
+            .enhance-btn {
+                padding: 1rem 3.5rem;
+                font-size: 1.2rem;
+            }
+
+            .info-label {
+                font-size: 0.85rem;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div class="ui-layer">
+        <button class="back-btn" onclick="location.href='index.html'">◀ 메인으로</button>
+
+        <div id="info-display" class="info-label"></div>
+
+        <div class="controls">
+            <button id="enhance-btn" class="enhance-btn" onclick="handleEnhance()">강화하기</button>
+            <div id="prob-display" class="probability-text">성공 확률: 100%</div>
+            <button class="board-link-btn" onclick="location.href='board.html'"
+                style="margin-top: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 20px; border-radius: 12px; pointer-events: auto; font-family: 'Noto Sans KR', sans-serif; cursor: pointer;">당신과
+                같은 꿈을 가진 사람들의 이야기</button>
+        </div>
+    </div>
+
+    <div id="msg-overlay">SUCCESS</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+
+    <script>
+        // Game States
+        let currentState = 0;
+        let isTransitioning = false;
+        let controls;
+
+        const stageConfig = [
+            { prob: 100, label: "중앙의 특이점을 강화하여 빅뱅을 일으키세요." },
+            { prob: 80, label: "🔵 파란색: 전자 | ⚪ 하얀색: 쿼크 (천천히 유영 중)" },
+            { prob: 60, label: "🔴 빨간색: 양성자 | ⚪ 하얀색: 중성자 (입자들이 생성됨)" },
+            { prob: 20, label: "🌊 수소 원자핵(P+N) & 헬륨 원자핵(2P+2N) 형성 중" },
+            { prob: 0, label: "축하드립니다! 빅뱅 강화에 성공하셧습니다<br>빅뱅 공부는 잘 되셧나요??<br>빅뱅 우주론 에 대해 공부 하기 힘들때 마다 들어와서 공부하세요!" }
+        ];
+
+        // Three.js Setup
+        let scene, camera, renderer, particles = [];
+        const container = document.getElementById('canvas-container');
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 25;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.enablePan = false;
+            controls.autoRotate = false;
+
+            createLevel(0);
+            animate();
+        }
+
+        function createLevel(level) {
+            clearScene();
+            currentState = level;
+
+            const config = stageConfig[level];
+            const probDisplay = document.getElementById('prob-display');
+            const enhanceBtn = document.getElementById('enhance-btn');
+            const infoEl = document.getElementById('info-display');
+
+            if (level === 4) {
+                probDisplay.style.display = 'none';
+                enhanceBtn.style.display = 'none';
+            } else {
+                probDisplay.innerText = `성공 확률: ${config.prob}%`;
+                probDisplay.style.display = 'block';
+                enhanceBtn.style.display = 'block';
+            }
+
+            if (config.label) {
+                infoEl.innerHTML = config.label;
+                infoEl.classList.add('visible');
+            } else {
+                infoEl.classList.remove('visible');
+            }
+
+            if (level === 0) {
+                // 특이점
+                const singularityGroup = new THREE.Group();
+                singularityGroup.name = "singularity_group";
+
+                const geom = new THREE.SphereGeometry(2.5, 32, 32);
+                const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const mesh = new THREE.Mesh(geom, mat);
+                singularityGroup.add(mesh);
+                singularityGroup.add(createGlow(0xffffff, 10));
+
+                scene.add(singularityGroup);
+            }
+            else {
+                // 상시 떠다니는 전자 (수소 원자 완성 전까지)
+                if (level < 4) spawnParticles('electron', 35);
+
+                if (level === 1) {
+                    spawnParticles('quark', 50);
+                } else if (level === 2) {
+                    spawnParticles('proton', 25);
+                    spawnParticles('neutron', 25);
+                } else if (level === 3) {
+                    spawnParticles('h_nucleus', 12);
+                    spawnParticles('he_nucleus', 8);
+                } else if (level === 4) {
+                    spawnParticles('h_atom', 18);
+                    // 헬륨도 함께 유영
+                    spawnParticles('he_nucleus', 5);
+                }
+            }
+        }
+
+        function spawnParticles(type, count) {
+            for (let i = 0; i < count; i++) {
+                const p = createParticle(type);
+                p.position.set(
+                    (Math.random() - 0.5) * 40,
+                    (Math.random() - 0.5) * 40,
+                    (Math.random() - 0.5) * 15
+                );
+                p.userData.velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.03,
+                    (Math.random() - 0.5) * 0.03,
+                    (Math.random() - 0.5) * 0.015
+                );
+                scene.add(p);
+                particles.push(p);
+            }
+        }
+
+        function createParticle(type) {
+            const group = new THREE.Group();
+
+            if (type === 'electron') {
+                const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), new THREE.MeshBasicMaterial({ color: 0x4488ff }));
+                group.add(mesh);
+                group.add(createGlow(0x4488ff, 0.5));
+            } else if (type === 'quark') {
+                const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                group.add(mesh);
+            } else if (type === 'proton') {
+                const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), new THREE.MeshBasicMaterial({ color: 0xff4444 }));
+                group.add(mesh);
+            } else if (type === 'neutron') {
+                const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                group.add(mesh);
+            } else if (type === 'h_nucleus') {
+                const p = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), new THREE.MeshBasicMaterial({ color: 0xff4444 }));
+                const n = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                p.position.x = -0.25; n.position.x = 0.25;
+                group.add(p); group.add(n);
+            } else if (type === 'he_nucleus') {
+                for (let j = 0; j < 4; j++) {
+                    const c = j < 2 ? 0xff4444 : 0xffffff;
+                    const m = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), new THREE.MeshBasicMaterial({ color: c }));
+                    m.position.set((j % 2 - 0.5) * 0.35, (Math.floor(j / 2) - 0.5) * 0.35, (Math.random() - 0.5) * 0.1);
+                    group.add(m);
+                }
+            } else if (type === 'h_atom') {
+                const nucleus = new THREE.Group();
+                const p = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), new THREE.MeshBasicMaterial({ color: 0xff4444 }));
+                const n = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                p.position.x = -0.15; n.position.x = 0.15;
+                nucleus.add(p); nucleus.add(n);
+                group.add(nucleus);
+
+                const electron = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), new THREE.MeshBasicMaterial({ color: 0x4488ff }));
+                electron.position.x = 1.6;
+                group.add(electron);
+                group.userData.isAtom = true;
+            }
+
+            group.userData.type = type;
+            return group;
+        }
+
+        function createGlow(color, scale) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            grad.addColorStop(0, 'rgba(255,255,255,1)');
+            grad.addColorStop(0.3, `rgba(${(color >> 16) & 255}, ${(color >> 8) & 255}, ${color & 255}, 0.5)`);
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad; ctx.fillRect(0, 0, 64, 64);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), blending: THREE.AdditiveBlending }));
+            sprite.scale.set(scale, scale, 1);
+            return sprite;
+        }
+
+        function handleEnhance() {
+            if (isTransitioning) return;
+            isTransitioning = true;
+            const btn = document.getElementById('enhance-btn');
+            btn.disabled = true;
+
+            const prob = stageConfig[currentState].prob;
+            const isSuccess = Math.random() * 100 < prob;
+
+            if (currentState === 0) {
+                // 100% 빅뱅 폭발 (0 -> 1단계 이동)
+                triggerExplosion(1, 150, true);
+            }
+            else {
+                // 이제 실패하더라도 연출을 보여줌
+                triggerTransition(currentState + 1, isSuccess);
+            }
+        }
+
+        async function triggerTransition(nextLevel, isSuccess) {
+            // 카메라 클로즈업
+            gsap.to(camera.position, { z: 10, duration: 1.5, ease: "slow(0.7, 0.7, false)" });
+
+            // 충돌할 두 입자 속성 가져오기
+            const ingredients = getIngredientTypes(nextLevel);
+            const p1 = createParticle(ingredients.type1);
+            const p2 = createParticle(ingredients.type2);
+
+            // 성공 시 정면 충돌, 실패 시 y축으로 살짝 빗나감
+            p1.position.set(-15, isSuccess ? 0 : 0.5, 0);
+            p2.position.set(15, isSuccess ? 0 : -0.5, 0);
+            scene.add(p1); scene.add(p2);
+
+            if (isSuccess) {
+                // 성공: 정통으로 충돌
+                gsap.to(p1.position, { x: 0, duration: 1.8, ease: "power4.in" });
+                gsap.to(p2.position, {
+                    x: 0, duration: 1.8, ease: "power4.in", onComplete: () => {
+                        scene.remove(p1); scene.remove(p2);
+                        triggerExplosion(nextLevel, 60, false);
+                    }
+                });
+            } else {
+                // 실패: 서로 스쳐 지나감
+                gsap.to(p1.position, { x: 15, duration: 2.5, ease: "power2.inOut" });
+                gsap.to(p2.position, {
+                    x: -15, duration: 2.5, ease: "power2.inOut", onComplete: () => {
+                        scene.remove(p1); scene.remove(p2);
+                        const msg = document.getElementById('msg-overlay');
+                        msg.innerText = "FAILURE"; msg.style.color = "#ff4444";
+                        gsap.to(msg, {
+                            opacity: 1, duration: 0.5, yoyo: true, repeat: 1, onComplete: () => {
+                                createLevel(0);
+                                gsap.to(camera.position, { z: 25, duration: 1.5 });
+                                isTransitioning = false;
+                                document.getElementById('enhance-btn').disabled = false;
+                            }
+                        });
+                    }
+                });
+                // 점점 작아지며 사라짐
+                gsap.to(p1.scale, { x: 0, y: 0, z: 0, duration: 0.5, delay: 2 });
+                gsap.to(p2.scale, { x: 0, y: 0, z: 0, duration: 0.5, delay: 2 });
+            }
+        }
+
+        function getIngredientTypes(nextLevel) {
+            if (nextLevel === 2) return { type1: 'quark', type2: 'quark' };
+            if (nextLevel === 3) return { type1: 'proton', type2: 'neutron' };
+            if (nextLevel === 4) return { type1: 'electron', type2: 'h_nucleus' };
+            return { type1: 'quark', type2: 'quark' };
+        }
+
+        function triggerExplosion(level, count, isFirst) {
+            // Flash
+            const flash = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 1 }));
+            scene.add(flash);
+            gsap.to(flash.scale, { x: 100, y: 100, z: 100, duration: 1, ease: "expo.out" });
+            gsap.to(flash.material, { opacity: 0, duration: 1, onComplete: () => scene.remove(flash) });
+
+            // Particles Burst
+            const group = new THREE.Group();
+            scene.add(group);
+            for (let i = 0; i < count; i++) {
+                const s = new THREE.Mesh(new THREE.SphereGeometry(Math.random() * 0.15 + 0.05, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+                group.add(s);
+                const a = Math.random() * Math.PI * 2, p = Math.acos(Math.random() * 2 - 1), d = 20 + Math.random() * 30;
+                gsap.to(s.position, { x: Math.sin(p) * Math.cos(a) * d, y: Math.sin(p) * Math.sin(a) * d, z: Math.cos(p) * d, duration: 2, ease: "expo.out" });
+            }
+
+            const msg = document.getElementById('msg-overlay');
+            msg.innerText = "SUCCESS"; msg.style.color = "#00ff88";
+            gsap.to(msg, { opacity: 1, duration: 0.5, yoyo: true, repeat: 1 });
+
+            setTimeout(() => {
+                scene.remove(group);
+                createLevel(level);
+                gsap.to(camera.position, { z: 25, duration: 1.5, ease: "power2.out" });
+                isTransitioning = false;
+                document.getElementById('enhance-btn').disabled = false;
+            }, 1800);
+        }
+
+        function clearScene() {
+            for (let i = scene.children.length - 1; i >= 0; i--) {
+                const obj = scene.children[i];
+                if (obj.name !== "stars") scene.remove(obj);
+            }
+            particles = [];
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (controls) controls.update();
+            particles.forEach(p => {
+                p.position.add(p.userData.velocity);
+                if (p.userData.isAtom) {
+                    p.rotation.y += 0.01;
+                    p.children[1].position.x = Math.cos(Date.now() * 0.0015) * 1.8;
+                    p.children[1].position.z = Math.sin(Date.now() * 0.0015) * 1.8;
+                }
+                if (Math.abs(p.position.x) > 30) p.userData.velocity.x *= -1;
+                if (Math.abs(p.position.y) > 30) p.userData.velocity.y *= -1;
+            });
+            const sGroup = scene.getObjectByName("singularity_group");
+            if (sGroup) sGroup.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

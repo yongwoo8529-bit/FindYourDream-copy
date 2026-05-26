@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLARIS - Blog Post</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style.css">
+    <style>
+        body {
+            margin: 0; padding: 0; background: #000; color: #fff;
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .top-nav {
+            position: fixed; top: 0; width: 100%; max-width: 800px; height: 70px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; z-index: 100;
+            background: rgba(4, 10, 24, 0.8); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-logo { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 20px; color: #fff; text-decoration: none; }
+        .blog-container {
+            max-width: 800px; width: 90%; margin: 120px auto 100px;
+            padding: 3rem; background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px; box-shadow: 0 0 50px rgba(255, 255, 255, 0.05);
+        }
+        .post-title {
+            font-size: 2rem; margin-bottom: 2rem; line-height: 1.4;
+            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .post-content { line-height: 1.8; font-size: 1.1rem; color: rgba(255, 255, 255, 0.85); }
+        .post-content h2 { color: #fff; border-left: 4px solid #4080ff; padding-left: 15px; margin-top: 2rem; }
+        .highlight { color: #4080ff; font-weight: 700; }
+        .back-btn {
+            display: inline-block; margin-top: 2rem; padding: 12px 24px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; text-decoration: none; border-radius: 50px; transition: 0.3s;
+        }
+        .back-btn:hover { background: #fff; color: #000; }
+        #stars-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+
+        @media (max-width: 600px) {
+            .blog-container { padding: 1.5rem; margin-top: 100px; border-radius: 20px; }
+            .post-title { font-size: 1.4rem; margin-bottom: 1.5rem; }
+            .post-content { font-size: 0.95rem; line-height: 1.7; }
+            .post-content h2 { font-size: 1.15rem; margin-top: 1.5rem; }
+            blockquote { padding: 1rem; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="index.html" class="nav-logo">POLARIS</a>
+        <button id="nav-toggle" class="nav-btn">NAVIGATE</button>
+        <div id="nav-menu" class="nav-overlay">
+            <div class="nav-menu-content">
+                <a href="about.html" class="menu-item">브랜드 스토리</a>
+                <a href="results-guide.html" class="menu-item">은하계 가이드</a>
+                <a href="blog.html" class="menu-item">블로그</a>
+            </div>
+        </div>
+    </nav>
+
+    <canvas id="stars-bg"></canvas>
+
+    <article class="blog-container">
+        <h1 id="post-title" class="post-title">불러오는 중...</h1>
+        <div id="post-content" class="post-content"></div>
+        <a href="blog.html" class="back-btn">← 목록으로 돌아가기</a>
+    </article>
+
+    <script type="module">
+        import { blogPosts } from './src/blog-data.js';
+        
+        const params = new URLSearchParams(window.location.search);
+        const postId = params.get('id') || 1;
+        const post = blogPosts[postId];
+
+        if (post) {
+            document.getElementById('post-title').innerText = post.title;
+            document.getElementById('post-content').innerHTML = post.content;
+            document.title = `POLARIS - ${post.title}`;
+        } else {
+            document.getElementById('post-title').innerText = "포스트를 찾을 수 없습니다.";
+        }
+
+        // Star background logic same as others
+        const canvas = document.getElementById('stars-bg');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+        window.addEventListener('resize', resize);
+        resize();
+        class Star {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5;
+                this.opacity = Math.random();
+                this.blink = 0.005 + Math.random() * 0.01;
+            }
+            draw() {
+                this.opacity += this.blink;
+                if (this.opacity > 1 || this.opacity < 0) this.blink *= -1;
+                ctx.fillStyle = `rgba(255,255,255,${Math.max(0, this.opacity)})`;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+            }
+        }
+        for(let i=0; i<200; i++) stars.push(new Star());
+        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); stars.forEach(s=>s.draw()); requestAnimationFrame(animate); }
+        animate();
+
+        // Nav Toggle
+        const nt = document.getElementById('nav-toggle');
+        const nm = document.getElementById('nav-menu');
+        nt.addEventListener('click', (e) => { e.stopPropagation(); nm.classList.toggle('active'); });
+        document.addEventListener('click', (e) => { if (!nm.contains(e.target)) nm.classList.remove('active'); });
+    </script>
+</body>
+</html>

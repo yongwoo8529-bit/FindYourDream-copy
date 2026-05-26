@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>POLARIS</title>
+    <!-- GSAP for smooth animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* [전역 디자인 시스템] */
+        :root {
+            --bg-color: #040a18;
+            --accent-blue: #4080ff;
+            --accent-purple: #9060ff;
+            --accent-teal: #20c8a0;
+            --text-white: #ffffff;
+            --text-dim: #5a8ab0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: system-ui, -apple-system, sans-serif;
+            width: 100vw;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto; /* Enable scroll for content */
+            overscroll-behavior: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* [배경 시스템] */
+        .page-wrapper {
+            width: 100%;
+            max-width: 800px; /* Increased for desktop/text visibility */
+            min-height: 100vh;
+            position: relative;
+            background: url('bg-main.png') no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(4, 10, 24, 0.55);
+            z-index: 1;
+        }
+
+        canvas#background-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* [UI 레이아웃] */
+        .content-layer {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 100px 20px 40px;
+        }
+
+        /* [Navigation] */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 800px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            background: rgba(4, 10, 24, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-logo {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* Nav Toggle Styles */
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+        }
+
+        .nav-btn:hover { background: #fff; color: #000; }
+
+        .nav-overlay {
+            position: absolute;
+            top: 75px;
+            right: 20px;
+            width: calc(100% - 40px);
+            max-width: 280px;
+            background: rgba(10, 15, 30, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 15px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        .nav-overlay.active { display: flex; animation: slideDown 0.3s ease-out; }
+
+        .nav-menu-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .menu-item {
+            color: #fff;
+            text-decoration: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+            text-align: center;
+            display: block; /* Ensure full width */
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .menu-item:hover { 
+            background: rgba(40, 128, 255, 0.15); 
+            color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            transform: scale(1.02);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        /* 행성 오브젝트 섹션 */
+        .planet-section {
+            margin-top: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .planet-orb {
+            width: 120px;
+            height: 120px;
+            background: url('interactive-planet.png') no-repeat center center;
+            background-size: contain;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 20px var(--accent-blue));
+            z-index: 5;
+            transition: transform 0.2s;
+        }
+
+        .planet-orb:active {
+            transform: scale(0.9);
+        }
+
+        /* 위성 공전 효과 */
+        .satellite-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .satellite {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle, #fff, var(--accent-blue));
+            border-radius: 50%;
+            top: -6px;
+            left: calc(50% - 6px);
+            box-shadow: 0 0 10px var(--accent-blue);
+            animation: orbit 8s linear infinite;
+        }
+
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(90px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(90px) rotate(-360deg); }
+        }
+
+        .click-hint {
+            margin-top: 15px;
+            font-size: 11px;
+            color: var(--accent-blue);
+            letter-spacing: 1px;
+            opacity: 0.8;
+            animation: text-pulse 2s infinite;
+        }
+
+        @keyframes text-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* 타이틀 블록 */
+        .title-block {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .main-title {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 8px;
+            color: #fff;
+            text-shadow: 0 0 15px var(--accent-blue);
+            margin-bottom: 8px;
+        }
+
+        .sub-title {
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* 메뉴 카드 */
+        .menu-container {
+            margin-top: auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .menu-card {
+            position: relative;
+            padding: 24px 20px;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .menu-card:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--theme-color);
+            box-shadow: 0 0 20px var(--theme-color-glow);
+        }
+
+        .dest-label {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 9px;
+            color: var(--theme-color);
+            margin-bottom: 8px;
+            font-weight: 900;
+        }
+
+        .menu-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .tag-label {
+            font-size: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            opacity: 0.5;
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+        }
+
+        .glow-circle {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: var(--theme-color);
+            filter: blur(40px);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* 스크롤 유도 */
+        .scroll-hint {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 30px;
+        }
+
+        .dot {
+            width: 3px;
+            height: 3px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.2;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .dot:nth-child(1) { animation: blink 1.5s infinite 0s; }
+        .dot:nth-child(2) { animation: blink 1.5s infinite 0.2s; }
+        .dot:nth-child(3) { animation: blink 1.5s infinite 0.4s; }
+
+        /* [Footer] */
+        .main-footer {
+            width: 100%;
+            padding: 60px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 10;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+        }
+
+        .footer-col a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 텍스트 콘텐츠 보강 */
+        .intro-text-block {
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: left;
+        }
+
+        .intro-text-block p {
+            font-size: 14px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 15px;
+        }
+
+        #particle-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <nav class="top-nav">
+            <a href="index.html" class="nav-logo">POLARIS</a>
+            <button id="nav-toggle" class="nav-btn">NAVIGATE</button>
+            
+            <div id="nav-menu" class="nav-overlay">
+                <div class="nav-menu-content">
+                    <a href="about.html" class="menu-item">브랜드 스토리</a>
+                    <a href="results-guide.html" class="menu-item">은하계 가이드</a>
+                    <a href="jobs.html" class="menu-item">직업 탐색</a>
+                    <a href="blog.html" class="menu-item">블로그</a>
+                    <a href="polaris.html" class="menu-item">나만의 북극성 찾기</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="overlay"></div>
+        <canvas id="background-canvas"></canvas>
+        <canvas id="particle-overlay"></canvas>
+
+        <main class="content-layer">
+
+            <!-- 행성 오브젝트 -->
+            <div class="planet-section" onclick="burstPlanet(event)">
+                <div class="satellite-orbit">
+                    <div class="satellite"></div>
+                </div>
+                <div class="planet-orb" id="main-planet"></div>
+                <div class="click-hint">메인 화면 성운을 클릭해보세요</div>
+            </div>
+
+            <!-- 타이틀 -->
+            <div class="title-block">
+                <h1 class="main-title">POLARIS</h1>
+                <p class="sub-title">어느 여정으로 떠나시겠습니까?</p>
+            </div>
+
+            <div class="intro-text-block">
+                <p>
+                    <strong>POLARIS 프로젝트</strong>는 급변하는 현대 사회 속에서 청소년들이 자신의 진정한 가치를 발견하고, 남들의 시선이 아닌 자신만의 내면의 목소리에 귀를 기울일 수 있도록 돕기 위해 시작되었습니다.
+                </p>
+                <p>
+                    우리는 각자가 하나의 고유한 은하계와 같다고 믿습니다. 어떤 이는 탐구의 빛이 강하고, 어떤 이는 공감과 온기의 에너지가 넘칩니다. POLARIS는 여러분의 이러한 고유한 성향을 '우주적 관점'에서 분석하고 시각화하여, 스스로가 얼마나 눈부신 존재인지 깨닫게 해줍니다.
+                </p>
+                <p>
+                    단순한 심리 테스트를 넘어, Three.js 기반의 환상적인 3D 인터랙션을 통해 여러분의 내면 세계를 체험해 보세요. 북극성이 길을 잃은 여행자들의 지표가 되듯, POLARIS가 여러분의 꿈을 향한 여정의 이정표가 되어드릴 것입니다.
+                </p>
+            </div>
+
+            <div class="menu-container">
+                <a href="about.html" class="menu-card" style="--theme-color: #4080ff; --theme-color-glow: rgba(64, 128, 255, 0.4);">
+                    <span class="dest-label">DEST.00</span>
+                    <span class="menu-name">프로젝트 스토리</span>
+                    <span class="tag-label">[PROJECT MISSION]</span>
+                    <div class="glow-circle"></div>
+                </a>
+
+                <a href="polaris.html" class="menu-card" style="--theme-color: #9060ff; --theme-color-glow: rgba(144, 96, 255, 0.4);">
+                    <span class="dest-label">DEST.01</span>
+                    <span class="menu-name">나만의 북극성 찾기</span>
+                    <span class="tag-label">[POLARIS MATRIX]</span>
+                    <div class="glow-circle"></div>
+                </a>
+
+                <a href="jobs.html" class="menu-card" style="--theme-color: #20c8a0; --theme-color-glow: rgba(32, 200, 160, 0.4);">
+                    <span class="dest-label">DEST.02</span>
+                    <span class="menu-name">직업 탐색</span>
+                    <span class="tag-label">[JOB EXPLORER]</span>
+                    <div class="glow-circle"></div>
+                </a>
+
+                <a href="blog.html" class="menu-card" style="--theme-color: #ff6b9d; --theme-color-glow: rgba(255, 107, 157, 0.4);">
+                    <span class="dest-label">DEST.03</span>
+                    <span class="menu-name">하루 한글 집중하기</span>
+                    <span class="tag-label">[DAILY DEVLOG]</span>
+                    <div class="glow-circle"></div>
+                </a>
+            </div>
+        </main>
+
+        <footer class="main-footer">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Navigate</h4>
+                    <ul>
+                        <li><a href="index.html">홈으로</a></li>
+                        <li><a href="about.html">브랜드 스토리</a></li>
+                        <li><a href="results-guide.html">은하계 가이드</a></li>
+                        <li><a href="blog.html">블로그</a></li>
+                        <li><a href="polaris.html">나만의 북극성 찾기</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy.html">개인정보 처리방침</a></li>
+                        <li><a href="about.html">이용약관</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2024 POLARIS PROJECT. All Rights Reserved.
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const bgCanvas = document.getElementById('background-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let width, height;
+
+        const stars = [];
+        const meteors = [];
+
+        function resize() {
+            width = bgCanvas.width = window.innerWidth;
+            height = bgCanvas.height = window.innerHeight;
+        }
+
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = 0.5 + Math.random() * 1.5;
+                this.opacity = 0.2 + Math.random() * 0.8;
+                this.blinkSpeed = 0.005 + Math.random() * 0.01;
+            }
+
+            draw() {
+                this.opacity += this.blinkSpeed;
+                if (this.opacity > 1 || this.opacity < 0.2) this.blinkSpeed *= -1;
+                bgCtx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                bgCtx.fill();
+            }
+        }
+
+        class Meteor {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height * 0.5;
+                this.len = 20 + Math.random() * 50;
+                this.speed = 3 + Math.random() * 10;
+                this.opacity = 1;
+            }
+
+            draw() {
+                this.x += this.speed;
+                this.y += this.speed;
+                this.opacity -= 0.02;
+
+                if (this.opacity <= 0) return false;
+
+                bgCtx.strokeStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                bgCtx.lineWidth = 1;
+                bgCtx.beginPath();
+                bgCtx.moveTo(this.x, this.y);
+                bgCtx.lineTo(this.x - this.len, this.y - this.len);
+                bgCtx.stroke();
+                return true;
+            }
+        }
+
+        function initBG() {
+            resize();
+            for (let i = 0; i < 180; i++) stars.push(new Star());
+            setInterval(() => {
+                if (meteors.length < 3) meteors.push(new Meteor());
+            }, 3000);
+        }
+
+        function animateBG() {
+            bgCtx.clearRect(0, 0, width, height);
+            stars.forEach(s => s.draw());
+            for (let i = meteors.length - 1; i >= 0; i--) {
+                if (!meteors[i].draw()) meteors.splice(i, 1);
+            }
+            requestAnimationFrame(animateBG);
+        }
+
+        const pCanvas = document.getElementById('particle-overlay');
+        const pCtx = pCanvas.getContext('2d');
+        let particles = [];
+        let isBursting = false;
+
+        function burstPlanet(e) {
+            if (isBursting) return;
+            isBursting = true;
+
+            const rect = document.getElementById('main-planet').getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            gsap.to("#main-planet", { opacity: 0, scale: 2, duration: 0.4 });
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: centerX,
+                    y: centerY,
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: (Math.random() - 0.5) * 20,
+                    size: 1 + Math.random() * 3,
+                    color: i % 3 === 0 ? '#4080ff' : '#ffffff',
+                    opacity: 1
+                });
+            }
+
+            // Burst then Gather
+            gsap.to({}, {
+                duration: 2.2,
+                onUpdate: function() {
+                    const p = this.progress();
+                    if (p < 0.4) {
+                        particles.forEach(pt => {
+                            pt.x += pt.vx;
+                            pt.y += pt.vy;
+                            pt.vx *= 0.96;
+                            pt.vy *= 0.96;
+                        });
+                    } else {
+                        particles.forEach(pt => {
+                            pt.x += (centerX - pt.x) * (p * 0.15);
+                            pt.y += (centerY - pt.y) * (p * 0.15);
+                        });
+                    }
+                },
+                onComplete: () => {
+                    particles = [];
+                    isBursting = false;
+                    gsap.to("#main-planet", { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(1.7)" });
+                }
+            });
+        }
+
+        function animateParticles() {
+            pCanvas.width = window.innerWidth;
+            pCanvas.height = window.innerHeight;
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            particles.forEach(p => {
+                pCtx.globalAlpha = p.opacity;
+                pCtx.fillStyle = p.color;
+                pCtx.beginPath();
+                pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                pCtx.fill();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.addEventListener('resize', resize);
+        initBG();
+        animateBG();
+        animateParticles();
+    </script>
+    <script>
+        const navToggle = document.getElementById('nav-toggle');
+        const navMenu = document.getElementById('nav-menu');
+
+        navToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            navMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+            }
+        });
+
+        // Close menu when clicking items
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

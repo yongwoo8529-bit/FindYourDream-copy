@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLARIS - Blog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow-x: hidden;
+            font-family: 'Noto Sans KR', sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* [Navigation] */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 800px;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+            background: rgba(4, 10, 24, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 2px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #4080ff;
+        }
+
+        .nav-links a.active {
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* [Header] */
+        .page-header {
+            margin-top: 120px;
+            text-align: center;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header-hint {
+            font-size: 14px;
+            color: #4080ff;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* [Content Container] */
+        .blog-container {
+            max-width: 800px;
+            width: 90%;
+            margin: 40px auto 100px;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            color: #fff;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.05);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .post-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+            word-break: keep-all;
+            background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .post-content {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.85);
+            word-break: keep-all;
+        }
+
+        .post-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        .post-content h2 {
+            font-size: 1.5rem;
+            margin: 2.5rem 0 1rem;
+            color: #fff;
+            border-left: 4px solid #4080ff;
+            padding-left: 15px;
+        }
+
+        .post-content blockquote {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(64, 128, 255, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid #4080ff;
+            font-style: italic;
+        }
+
+        .post-content hr {
+            border: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 3rem 0;
+        }
+
+        .highlight {
+            color: #4080ff;
+            font-weight: 700;
+        }
+
+        /* [Stars Background] */
+        #stars-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        /* [Footer] */
+        .main-footer {
+            width: 100%;
+            max-width: 800px;
+            padding: 60px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 10;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #4080ff;
+            text-transform: uppercase;
+        }
+
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 10px; }
+        .footer-col a { color: rgba(255, 255, 255, 0.5); text-decoration: none; font-size: 13px; }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .blog-container {
+                padding: 1.5rem;
+                border-radius: 20px;
+            }
+            .post-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <a href="index.html" class="nav-logo">POLARIS</a>
+        <button id="nav-toggle" class="nav-btn">NAVIGATE</button>
+        <div id="nav-menu" class="nav-overlay">
+            <div class="nav-menu-content">
+                <a href="about.html" class="menu-item">브랜드 스토리</a>
+                <a href="results-guide.html" class="menu-item">은하계 가이드</a>
+                <a href="blog.html" class="menu-item">블로그</a>
+                <a href="polaris.html" class="menu-item">나만의 북극성 찾기</a>
+            </div>
+        </div>
+    </nav>
+
+    <canvas id="stars-bg"></canvas>
+
+    <header class="page-header">
+        <span class="header-hint">하루마다 올라오는 글을 감상해보세요!</span>
+        <h1 style="font-family: 'Orbitron', sans-serif; letter-spacing: 5px; margin-bottom: 3rem;">POLARIS BLOG</h1>
+
+        <div class="post-selector">
+            <h2 style="font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.7;">최신 글 목록</h2>
+            <div class="selector-track" id="post-buttons">
+                <!-- Cleaner button labels -->
+                <a href="post.html?id=1" class="post-btn">글 1: 내가 좋아하는 것과 잘하는 것</a>
+                <a href="post.html?id=2" class="post-btn">글 2: 공부 말고 내 재능을 찾는 5가지 방법</a>
+                <a href="post.html?id=3" class="post-btn">글 3: 진로를 일찍 결정해야 할까? 늦어도 괜찮을까?</a>
+                <a href="post.html?id=4" class="post-btn">글 4: 남들과 비교하는 습관, 어떻게 멈출 수 있을까?</a>
+                <a href="post.html?id=5" class="post-btn">글 5: 내향적인 성격, 단점이 아니라 강점이다</a>
+                <a href="post.html?id=6" class="post-btn">글 6: 실패를 두려워하는 청소년에게</a>
+                <a href="post.html?id=7" class="post-btn">글 7: 스마트폰 없이 나를 찾는 시간, 디지털 디톡스의 힘</a>
+                <a href="post.html?id=8" class="post-btn">글 8: 청소년이 알아야 할 자기결정이론: 내가 선택한 삶이 행복하다</a>
+                <a href="post.html?id=9" class="post-btn">글 9: 꿈이 없어도 괜찮은 이유</a>
+                <a href="post.html?id=10" class="post-btn">글 10: 나만의 북극성을 찾는 방법: 자기 이해의 5단계</a>
+            </div>
+        </div>
+    </header>
+
+    <style>
+        .post-selector {
+            max-width: 600px;
+            width: 90%;
+            margin: 0 auto 100px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .selector-track {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .post-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            width: 100%;
+            display: block;
+            text-decoration: none;
+        }
+
+        .post-btn:hover {
+            background: rgba(64, 128, 255, 0.15);
+            transform: translateY(-2px);
+            border-color: #4080ff;
+            color: #4080ff;
+        }
+
+        @media (max-width: 600px) {
+            .page-header h1 { font-size: 1.8rem !important; }
+            .header-hint { font-size: 12px; }
+            .post-selector { padding: 25px 15px; }
+            .post-btn { padding: 16px; font-size: 0.95rem; }
+        }
+    </style>
+    
+    <script>
+        // Stars background logic
+        const canvas = document.getElementById('stars-bg');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const stars = [];
+            const resizeCanvas = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            class Star {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 1.5;
+                    this.opacity = Math.random();
+                    this.blinkSpeed = 0.005 + Math.random() * 0.01;
+                }
+                draw() {
+                    this.opacity += this.blinkSpeed;
+                    if (this.opacity > 1 || this.opacity < 0) this.blinkSpeed *= -1;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, this.opacity)})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            for (let i = 0; i < 200; i++) stars.push(new Star());
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                stars.forEach(s => s.draw());
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        const nt = document.getElementById('nav-toggle');
+        const nm = document.getElementById('nav-menu');
+        nt.addEventListener('click', (e) => { e.stopPropagation(); nm.classList.toggle('active'); });
+        document.addEventListener('click', (e) => { if (!nm.contains(e.target)) nm.classList.remove('active'); });
+    </script>
+
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Sitemap</h4>
+                <ul>
+                    <li><a href="index.html">Main Station</a></li>
+                    <li><a href="about.html">About Polaris</a></li>
+                    <li><a href="results-guide.html">Result Guide</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="polaris.html">나만의 북극성 찾기</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="privacy.html">개인정보 처리방침</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2024 POLARIS PROJECT.
+        </div>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('stars-bg');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const stars = [];
+            const resizeCanvas = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            class Star {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 1.5;
+                    this.opacity = Math.random();
+                    this.blinkSpeed = 0.005 + Math.random() * 0.01;
+                }
+                draw() {
+                    this.opacity += this.blinkSpeed;
+                    if (this.opacity > 1 || this.opacity < 0) this.blinkSpeed *= -1;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, this.opacity)})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < 200; i++) stars.push(new Star());
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                stars.forEach(s => s.draw());
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+    <script>
+        const nt = document.getElementById('nav-toggle');
+        const nm = document.getElementById('nav-menu');
+        nt.addEventListener('click', (e) => { e.stopPropagation(); nm.classList.toggle('active'); });
+        document.addEventListener('click', (e) => { if (!nm.contains(e.target)) nm.classList.remove('active'); });
+    </script>
+</body>
+</html>

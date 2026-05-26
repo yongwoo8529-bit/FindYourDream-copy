@@ -1,0 +1,23 @@
+{
+  "name": "polaris-inner-galaxy",
+  "version": "1.0.0",
+  "description": "Counseling app for finding inner potential through galaxies",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx vite",
+    "build": "npx vite build",
+    "preview": "npx vite preview",
+    "predeploy": "npm run build",
+    "deploy": "npx gh-pages -d dist"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.102.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0",
+    "vite": "^5.0.0"
+  }
+}

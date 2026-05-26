@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLARIS - 감성 사진 제작소</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style.css">
+    <style>
+        .editor-container {
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 80px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .photo-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 2rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .photo-preview-area {
+            width: 100%;
+            max-height: 500px;
+            min-height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-preview-area:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: filter 0.5s ease;
+        }
+
+        .vignette-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.4) 100%, rgba(0,0,0,0.6) 130%);
+            display: none;
+            z-index: 2;
+        }
+
+        .grain-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.15;
+            display: none;
+            z-index: 3;
+        }
+
+        .filter-controls {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .sci-fi-action-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: #fff;
+            padding: 12px 30px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 50px;
+            text-transform: uppercase;
+        }
+
+        .sci-fi-action-btn:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .upload-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .upload-placeholder i {
+            font-size: 3rem;
+        }
+
+        /* 텍스트 효과 */
+        .editor-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .editor-subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Back Button */
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.3s;
+            z-index: 100;
+        }
+        .back-link:hover {
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        /* SVG Filter for Noise */
+        #svg-filters {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- SVG Grain Filter -->
+    <svg id="svg-filters">
+        <filter id="noiseFilter">
+            <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+            <feComponentTransfer>
+                <feFuncR type="linear" slope="0.5"/>
+                <feFuncG type="linear" slope="0.5"/>
+                <feFuncB type="linear" slope="0.5"/>
+            </feComponentTransfer>
+        </filter>
+    </svg>
+
+    <canvas id="stars-bg"></canvas>
+    
+    <div class="app-container">
+        <a href="index.html" class="back-link">← RETURN TO BASE</a>
+        
+        <div class="editor-container">
+            <h1 class="editor-title">PHOTO EMOTION</h1>
+            <p class="editor-subtitle">당신의 기억에 따스한 필름의 질감을 입힙니다.</p>
+
+            <div class="photo-card">
+                <div class="photo-preview-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                    <div class="upload-placeholder" id="placeholder">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <p>사진을 선택하거나 드래그하세요</p>
+                    </div>
+                    <img src="" alt="" class="preview-img" id="output-img" style="display:none;">
+                    <div class="vignette-overlay" id="vignette-overlay"></div>
+                    <div class="grain-overlay" id="grain-overlay"></div>
+                </div>
+
+                <input type="file" id="file-input" accept="image/*">
+
+                <div class="filter-controls">
+                    <button class="filter-btn active" data-filter="none">ORIGINAL</button>
+                    <button class="filter-btn" data-filter="classic">FILM CAMERA</button>
+                    <button class="filter-btn" data-filter="dreamy">DREAMY GLOW</button>
+                    <button class="filter-btn" data-filter="vintage">WARM VINTAGE</button>
+                    <button class="filter-btn" data-filter="noir">MIDNIGHT NOIR</button>
+                    <button class="filter-btn" data-filter="faded">FADED MEMORY</button>
+                </div>
+
+                <div class="action-btns">
+                    <button class="sci-fi-action-btn" id="download-btn" style="display:none;">SAVE EMOTION</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const outputImg = document.getElementById('output-img');
+        const placeholder = document.getElementById('placeholder');
+        const grainOverlay = document.getElementById('grain-overlay');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const dropZone = document.getElementById('drop-zone');
+
+        // 필터 프리셋 정의
+        const filters = {
+            none: { css: 'none', grain: 0, vignette: false },
+            classic: { css: 'contrast(0.85) brightness(1.1) sepia(0.2) saturate(1.2)', grain: 0.2, vignette: true },
+            dreamy: { css: 'brightness(1.05) contrast(1.0) saturate(1.1) blur(0.3px)', grain: 0.15, vignette: false },
+            vintage: { css: 'brightness(0.9) contrast(1.1) saturate(0.8) sepia(0.4) hue-rotate(-10deg)', grain: 0.2, vignette: true },
+            noir: { css: 'brightness(0.8) contrast(1.5) grayscale(1) blur(0.4px)', grain: 0.25, vignette: true },
+            faded: { css: 'brightness(1.1) contrast(0.8) saturate(0.7) opacity(0.9)', grain: 0.12, vignette: false }
+        };
+
+        let currentFilter = 'none';
+
+        // 파일 업로드 처리
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    outputImg.src = event.target.result;
+                    outputImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    downloadBtn.style.display = 'block';
+                    applyFilter(currentFilter);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 드래그 앤 드롭
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = "#fff";
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = "rgba(255, 255, 255, 0.2)";
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = "rgba(255, 255, 255, 0.2)";
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                fileInput.files = e.dataTransfer.files;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    outputImg.src = event.target.result;
+                    outputImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    downloadBtn.style.display = 'block';
+                    applyFilter(currentFilter);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 필터 적용
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                applyFilter(currentFilter);
+            });
+        });
+
+        function applyFilter(filterKey) {
+            const config = filters[filterKey];
+            outputImg.style.filter = config.css;
+            
+            // 그레인 처리
+            if (config.grain > 0) {
+                grainOverlay.style.display = 'block';
+                grainOverlay.style.opacity = config.grain;
+                grainOverlay.innerHTML = `
+                    <div style="width:100%; height:100%; filter: url(#noiseFilter);"></div>
+                `;
+            } else {
+                grainOverlay.style.display = 'none';
+            }
+
+            // 비네팅 처리
+            const vignette = document.getElementById('vignette-overlay');
+            if (config.vignette) {
+                vignette.style.display = 'block';
+            } else {
+                vignette.style.display = 'none';
+            }
+        }
+
+        // 별 배경 (index.html에서 복사)
+        const canvas = document.getElementById('stars-bg');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const resizeCanvas = () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const drawStars = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < 200; i++) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.random()})`;
+                    ctx.beginPath();
+                    ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            };
+            drawStars();
+        }
+
+        // 다운로드 기능 (Canvas 활용)
+        downloadBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = outputImg.naturalWidth;
+            canvas.height = outputImg.naturalHeight;
+            
+            // 필터 적용
+            ctx.filter = filters[currentFilter].css;
+            ctx.drawImage(outputImg, 0, 0);
+            
+            if (filters[currentFilter].grain > 0) {
+                ctx.globalAlpha = filters[currentFilter].grain * 0.5;
+                ctx.fillStyle = "#888";
+                for (let i = 0; i < canvas.width * canvas.height * 0.05; i++) {
+                    ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 1, 1);
+                }
+            }
+
+            const link = document.createElement('a');
+            link.download = `polaris-emotion-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    </script>
+</body>
+</html>
