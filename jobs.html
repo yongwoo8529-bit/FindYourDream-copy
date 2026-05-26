@@ -583,8 +583,8 @@
         }
 
         async function fetchJobs(keyword, page) {
-            const params = new URLSearchParams({ pageIndex: page, pageCount: PAGE_SIZE });
-            if (keyword) params.append('keyword', keyword);
+            const params = new URLSearchParams({ pageIndex: page, pageSize: PAGE_SIZE });
+            if (keyword) params.append('searchJobNm', keyword);
             const res = await fetch(`/api/careernet?${params}`);
             if (!res.ok) throw new Error('API 오류');
             return res.json();
@@ -601,11 +601,11 @@
             card.className = 'job-card';
             card.style.animationDelay = `${delay * 40}ms`;
             card.innerHTML = `
-                <div class="job-card-cat">${job.jobClCdNm || 'CAREER'}</div>
-                <div class="job-card-name">${job.jobNm}</div>
+                <div class="job-card-cat">${job.top_nm || 'CAREER'}</div>
+                <div class="job-card-name">${job.job_nm}</div>
                 <span class="job-card-arrow">↗</span>
             `;
-            card.addEventListener('click', () => openDetail(job.seq, job.jobNm));
+            card.addEventListener('click', () => openDetail(job.seq, job.job_nm));
             return card;
         }
 
@@ -625,8 +625,8 @@
 
             try {
                 const data = await fetchJobs(keyword, page);
-                const jobs = data?.jobs?.job ?? [];
-                totalCount = parseInt(data?.jobs?.totalCount ?? 0, 10);
+                const jobs = data?.jobs ?? [];
+                totalCount = parseInt(data?.count ?? 0, 10);
 
                 hideStatus();
 
@@ -692,12 +692,12 @@
         const modalJobName = document.getElementById('modal-job-name');
 
         const DETAIL_FIELDS = [
-            { key: 'work',               label: 'WHAT THEY DO' },
-            { key: 'ability',            label: 'KEY ABILITIES' },
-            { key: 'educationTuition',   label: 'EDUCATION' },
-            { key: 'salaryRange',        label: 'SALARY' },
-            { key: 'enterPath',          label: 'HOW TO ENTER' },
-            { key: 'employmentPresent',  label: 'EMPLOYMENT' },
+            { key: 'work',       label: 'WHAT THEY DO' },
+            { key: 'interest',   label: 'KEY ABILITIES' },
+            { key: 'research',   label: 'EDUCATION' },
+            { key: 'wage',       label: 'SALARY' },
+            { key: 'rel_job_nm', label: 'HOW TO ENTER' },
+            { key: 'wlb',        label: 'WORK-LIFE BALANCE' },
         ];
 
         async function openDetail(seq, jobNm) {
@@ -707,7 +707,7 @@
 
             try {
                 const data = await fetchDetail(seq);
-                const job = data?.job ?? {};
+                const job = data ?? {};
 
                 let html = '';
                 DETAIL_FIELDS.forEach(({ key, label }) => {

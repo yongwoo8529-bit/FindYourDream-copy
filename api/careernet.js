@@ -6,7 +6,6 @@ function httpGet(url, hops) {
     return new Promise((resolve, reject) => {
         const client = url.startsWith('https') ? https : http;
         const req = client.get(url, (res) => {
-            // 301/302 리다이렉트 추적
             if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
                 res.resume();
                 httpGet(res.headers.location, hops + 1).then(resolve).catch(reject);
@@ -17,15 +16,9 @@ function httpGet(url, hops) {
             res.on('end', () => {
                 const body = Buffer.concat(chunks).toString('utf8');
                 try {
-                    const json = JSON.parse(body);
-                    // 커리어넷 API 레벨 오류 감지 (code: "-1" 등)
-                    if (json.code && json.code !== '0' && json.message) {
-                        reject(new Error(`API 오류 [${json.code}]: ${json.message}`));
-                        return;
-                    }
-                    resolve(json);
+                    resolve(JSON.parse(body));
                 } catch {
-                    reject(new Error(`HTTP ${res.statusCode} / JSON 파싱 실패: ${body.slice(0, 300)}`));
+                    reject(new Error(`JSON 파싱 실패 [${res.statusCode}]: ${body.slice(0, 300)}`));
                 }
             });
             res.on('error', reject);
@@ -41,20 +34,22 @@ module.exports = async (req, res) => {
     let apiKey = process.env.VITE_CAREERNET_API_KEY;
     if (!apiKey) return res.status(500).json({ error: 'VITE_CAREERNET_API_KEY 없음' });
 
-    // data.go.kr 방식 키는 이미 URL 인코딩된 상태로 발급됨 → 디코딩 후 사용
+    // data.go.kr 방식 키는 이미 URL인코딩 상태로 발급됨 → 디코딩 후 재인코딩
     try { apiKey = decodeURIComponent(apiKey); } catch {}
 
-    const { keyword, pageIndex = 1, pageCount = 20, seq } = req.query;
+    const { searchJobNm, pageIndex = 1, pageSize = 20, seq } = req.query;
 
     try {
         let url;
         if (seq) {
+            // 직업 상세
             url = `https://www.career.go.kr/cnet/front/openapi/job.json`
                 + `?apiKey=${encodeURIComponent(apiKey)}&seq=${encodeURIComponent(seq)}`;
         } else {
-            const kw = keyword ? `&keyword=${encodeURIComponent(keyword)}` : '';
+            // 직업 목록 — 올바른 파라미터명: searchJobNm, pageIndex, pageSize
+            const kw = searchJobNm ? `&searchJobNm=${encodeURIComponent(searchJobNm)}` : '';
             url = `https://www.career.go.kr/cnet/front/openapi/jobs.json`
-                + `?apiKey=${encodeURIComponent(apiKey)}&pageIndex=${pageIndex}&pageCount=${pageCount}${kw}`;
+                + `?apiKey=${encodeURIComponent(apiKey)}&pageIndex=${pageIndex}&pageSize=${pageSize}${kw}`;
         }
 
         const data = await httpGet(url, 0);
